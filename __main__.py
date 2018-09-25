@@ -34,6 +34,8 @@ polly = session.client("polly")
 hello = False
 searching = False
 songactive = False
+name = False
+faceid = None
 
 def run_once(f):
 	def wrapper(*args, **kwargs):
@@ -50,16 +52,16 @@ def facerecognition():
 	tyler_image = face_recognition.load_image_file("tyler.jpg")
 	tyler_face_encoding = face_recognition.face_encodings(tyler_image)[0]
 	# Sample recognizer.
-	donna_image = face_recognition.load_image_file("donna.jpg")
-	donna_face_encoding = face_recognition.face_encodings(donna_image)[0]
+	#donna_image = face_recognition.load_image_file("donna.jpg")
+	#donna_face_encoding = face_recognition.face_encodings(donna_image)[0]
 	# Sample Recognizer.
-	justin_image = face_recognition.load_image_file("justin.jpg")
-	justin_face_encoding = face_recognition.face_encodings(justin_image)[0]
+	#justin_image = face_recognition.load_image_file("justin.jpg")
+	#justin_face_encoding = face_recognition.face_encodings(justin_image)[0]
 	# Known faces
 	known_face_encodings = [
 	    tyler_face_encoding,
-	    donna_face_encoding,
-	    justin_face_encoding
+	 #   donna_face_encoding,
+	#   justin_face_encoding
 	]
 	known_face_names = [
 	    "Tyler",
@@ -71,6 +73,8 @@ def facerecognition():
 	face_encodings = []
 	face_names = []
 	process_this_frame = True
+	if video_capture != True:
+		return;
 
 	while True:
 		try:
@@ -132,7 +136,7 @@ def facerecognition():
 			break;
 		    else:
 			unknownface()
-			continue;
+			return;
 
 			# Release handle to the webcam
 		    video_capture.release()
@@ -140,6 +144,7 @@ def facerecognition():
 	        except Exception:
 			unknownferror()
 			continue;
+
 	return name, matches;
 
 
@@ -157,6 +162,7 @@ class songcontroller:
 			response = polly.synthesize_speech(Text="Ok, playing your request of" + artistname, OutputFormat='mp3', VoiceId='Justin')
 			respondmodule(response)
 			time.sleep(3.5)
+			break;
 		
 
 
@@ -230,8 +236,9 @@ def unknownferror():
 @run_once
 def unknownface():
 	time.sleep(6)
-	response = polly.synthesize_speech(Text="Hi there. I don't recognize you.", OutputFormat='mp3', VoiceId='Justin')
+	response = polly.synthesize_speech(Text="Hi there. I don't recognize you. What is your name?", OutputFormat='mp3', VoiceId='Justin')
 	respondmodule(response)
+	time.sleep(2)
 
 def initspeech(facerecognition):
 	#facerecognition()
@@ -259,16 +266,32 @@ try:
 	    splitted = r.recognize_google(audio).lower().split()
 
 
-	   # if talk in (conversations.name_list):
-	#	global name
-	#	name = talk
-	#	response = polly.synthesize_speech(Text='Ok, I will remember your name,' +name, OutputFormat='mp3', VoiceId='Justin')
-	#	mira(polly)
-	#	time.sleep(3)
-	#	response = polly.synthesize_speech(Text= random.choice(conversations.greeting_response), OutputFormat='mp3', VoiceId='Justin')
-	#	mira(polly)
-	#	conversation(talk)
-	#	time.sleep(1.3)
+	    while name == False:
+		if talk in (conversations.name_list):
+			name = talk
+			response = polly.synthesize_speech(Text='Ok! I will keep your name in mind,' +name, OutputFormat='mp3', VoiceId='Justin')
+			respondmodule(response)
+			time.sleep(4)
+			response = polly.synthesize_speech(Text='Can I take a photo of your face so that I can easily identify you next time?', OutputFormat='mp3', VoiceId='Justin')
+			respondmodule(response)
+			name = True
+			faceid = False
+
+		else:
+			response = polly.synthesize_speech(Text='Sorry, but I am not willing to be of service to unauthorized users.', OutputFormat='mp3', VoiceId='Justin')
+			respondmodule(response)
+			name = True
+	   		break;
+
+
+	    while faceid == False:
+	   	 if talk in {'okay', 'yes', 'sure', 'go for it', 'certainly'}:
+			print('sucess')
+			faceid = True
+		 else:
+		 	break;
+
+
 
 	    if hello == True:
 	    	if any(word in talk for word in conversations.statusgood_to):
@@ -318,18 +341,19 @@ try:
 			break;
 
 
-	    #if any(word in splitted for word in conversations.song_list):
-		#songinit()
-		#if songactive == True:
-		#	songcontroller.songs(talk, polly)
-		#	playmusic(songcontroller)
+	    if any(word in splitted for word in conversations.song_list):
+		songinit()
+		if songactive == True:
+			songcontroller.songs(talk, polly)
+			playmusic(songcontroller)
 
 	    if talk in {'pause','stop'}:
 		pausemusic(playmusic)
 
-	    if any(word in talk for word in {'play me a song by','play song by','song by'}):
-		talk = talk.replace('play me a song by', '')
-		print(talk)
+#	    if any(word in talk for word in {'play me a song by','play song by','song by'}):
+#		playmusic(songcontroller)
+#		talk = talk.replace('play me a song by', '')
+#		print(talk)
 
 	    if any(word in splitted for word in conversations.search_to):
 		searchinit()
