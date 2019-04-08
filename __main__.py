@@ -64,9 +64,8 @@ def facerecognition():
 	#   justin_face_encoding
 	]
 	known_face_names = [
-	    "Tyler",
-	    "Donna",
-	    "Justin"
+	    "jem"
+	    "yee"
 	]
 
 	face_locations = []
