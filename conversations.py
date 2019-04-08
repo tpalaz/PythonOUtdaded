@@ -25,7 +25,7 @@ asking_string = ['for asking']
 
 thanks_to = ['thanks']
 
-name_list = ['tyler', 'justin', 'josh', 'donna', 'rob']
+name_list = ['yes','jem']
 
 status_request = ['how are you', 'how', 'you', 'yo']
 
